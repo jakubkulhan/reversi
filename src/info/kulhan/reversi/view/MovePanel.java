@@ -95,42 +95,45 @@ public class MovePanel extends JPanel implements Observer {
         playerLabel.setText(null);
         passButton.setEnabled(false);
         
-        if (state.isGameEnded()) {
-            int blackScore = 0, whiteScore = 0;
-            
-            for (BoardSquare sq : state.getBoard()) {
-                if (sq.getPlayer() == Player.BLACK) {
-                    ++blackScore;
-                } else if (sq.getPlayer() == Player.WHITE) {
-                    ++whiteScore;
+        switch (state.getState()) {
+            case ENDED:
+                int blackScore = 0, whiteScore = 0;
+
+                for (BoardSquare sq : state.getBoard()) {
+                    if (sq.getPlayer() == Player.BLACK) {
+                        ++blackScore;
+                    } else if (sq.getPlayer() == Player.WHITE) {
+                        ++whiteScore;
+                    }
                 }
-            }
+
+                playerLabel.setText("Konec hry. Černý: " + blackScore +
+                        ". Bílý: " + whiteScore + ". " +
+                        (blackScore != whiteScore
+                            ? (
+                                (blackScore > whiteScore && blackScore != whiteScore ? "Černý" : "Bílý") +
+                                " vyhrál.")
+                            : ""));
+            break;
             
-            playerLabel.setText("Konec hry. Černý: " + blackScore +
-                    ". Bílý: " + whiteScore + ". " +
-                    (blackScore != whiteScore
-                        ? (
-                            (blackScore > whiteScore && blackScore != whiteScore ? "Černý" : "Bílý") +
-                            " vyhrál.")
-                        : ""));
-            
-        } else {
-            Player p = state.getCurrentPlayer();
+            case INTERACTIVE:
+                Player p = state.getCurrentPlayer();
 
-            if (p != Player.NONE) {
-                playerLabel.setIcon(p == Player.BLACK ? blackIcon : whiteIcon);
-            }
-
-            playerLabel.requestFocus();
-
-            if (!new LegalMovesIterator(state).hasNext()) {
-                if (new LegalMovesIterator(new GameState(state, state.getOpponentPlayer())).hasNext()) {
-                    passButton.setEnabled(true);
-                    
-                } else {
-                    controller.endGame();
+                if (p != Player.NONE) {
+                    playerLabel.setIcon(p == Player.BLACK ? blackIcon : whiteIcon);
                 }
-            }
+
+                playerLabel.requestFocus();
+
+                if (!new LegalMovesIterator(state).hasNext()) {
+                    if (new LegalMovesIterator(new GameState(state, state.getOpponentPlayer())).hasNext()) {
+                        passButton.setEnabled(true);
+
+                    } else {
+                        controller.endGame();
+                    }
+                }
+            break;
         }
     }
 }

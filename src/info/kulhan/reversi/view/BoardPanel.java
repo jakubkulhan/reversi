@@ -6,6 +6,7 @@ import info.kulhan.reversi.model.BoardSquare;
 import info.kulhan.reversi.model.GameState;
 import info.kulhan.reversi.model.LegalMovesIterator;
 import info.kulhan.reversi.model.Player;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -56,6 +57,7 @@ public class BoardPanel extends JPanel implements Observer {
         for (i = 0; i < 8; ++i) {
             for (j = 0; j < 8; ++j) {
                 buttons[i][j] = new JButton();
+                buttons[i][j].setPreferredSize(new Dimension(50, 50));
                 buttons[i][j].addActionListener(new BoardButtonActionListener(c, i, j));
                 add(buttons[i][j]);
             }
@@ -92,8 +94,10 @@ public class BoardPanel extends JPanel implements Observer {
             }
         }
 
-        for (BoardSquare sq : new LegalMovesIterator(state)) {
-            buttons[sq.getRow()][sq.getColumn()].setEnabled(true);
+        if (state.getState() != GameState.State.WAITING) {
+            for (BoardSquare sq : new LegalMovesIterator(state)) {
+                buttons[sq.getRow()][sq.getColumn()].setEnabled(true);
+            }
         }
     }
     
@@ -136,7 +140,7 @@ public class BoardPanel extends JPanel implements Observer {
         public void actionPerformed(ActionEvent ae) {
             if (state.getBoard().get(row, column) != Player.NONE) { return; }
         
-            controller.placeStone(row, column);
+            controller.move(row, column);
         }
         
     }

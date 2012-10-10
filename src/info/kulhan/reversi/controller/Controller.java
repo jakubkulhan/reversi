@@ -3,6 +3,7 @@ package info.kulhan.reversi.controller;
 import info.kulhan.reversi.model.BoardCardinalIterator;
 import info.kulhan.reversi.model.BoardSquare;
 import info.kulhan.reversi.model.GameState;
+import info.kulhan.reversi.model.LegalMovesIterator;
 import info.kulhan.reversi.view.GUIView;
 import info.kulhan.reversi.view.IView;
 import java.io.File;
@@ -11,7 +12,12 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Game controller
@@ -42,12 +48,42 @@ public class Controller implements IController {
     }
 
     /**
-     * Place stone of current player at given row and column
+     * Make human player move
      * @param row
      * @param column 
      */
     @Override
-    public void placeStone(int row, int column) {
+    public void move(int row, int column) {
+        placeStone(row, column);
+        state.setCurrentPlayer(state.getOpponentPlayer());
+        state.setState(GameState.State.WAITING);
+        
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                List<BoardSquare> legalMoves = new LinkedList();
+                
+                for (BoardSquare sq : new LegalMovesIterator(state)) {
+                    legalMoves.add(sq);
+                }
+                
+                if (legalMoves.size() > 0) {
+                    BoardSquare sq = legalMoves.get(new Random().nextInt(legalMoves.size()));
+                    placeStone(sq.getRow(), sq.getColumn());
+                }
+                
+                state.setCurrentPlayer(state.getOpponentPlayer());
+                state.setState(GameState.State.INTERACTIVE);
+            }
+        }, 500);
+    }
+
+    /**
+     * Place stone of the current player on the board, flank opponent stones
+     * @param row
+     * @param column 
+     */
+    private void placeStone(int row, int column) {
         Set<BoardSquare> sqs = new HashSet<BoardSquare>();
         BoardCardinalIterator it = new BoardCardinalIterator(state.getBoard(), row, column);
         
@@ -74,11 +110,9 @@ public class Controller implements IController {
             }
         }
         
-        state.setCurrentPlayer(state.getOpponentPlayer());
-        
         state.end();
     }
-
+    
     /**
      * Pass play to opponent
      */
@@ -142,7 +176,7 @@ public class Controller implements IController {
      */
     @Override
     public void endGame() {
-        state.endGame();
+        state.setState(GameState.State.ENDED);
     }
 
     /**

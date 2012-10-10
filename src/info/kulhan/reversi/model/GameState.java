@@ -19,9 +19,29 @@ public class GameState extends Observable implements Serializable, Observer {
     private Board board;
     
     /**
+     * State of the game state
+     */
+    public enum State {
+        /**
+         * Game is waiting for user input
+         */
+        INTERACTIVE,
+        
+        /**
+         * Game has ended
+         */
+        ENDED,
+        
+        /**
+         * Game is waiting for computer input
+         */
+        WAITING
+    }
+    
+    /**
      * true if game ended
      */
-    private boolean gameEnded;
+    private State state;
     
     /**
      * true if begin() has been called
@@ -117,7 +137,7 @@ public class GameState extends Observable implements Serializable, Observer {
      */
     public void reset() {
         currentPlayer = Player.BLACK;
-        gameEnded = false;
+        state = State.INTERACTIVE;
         board.reset(); // will trigger update() and thus notify observers
     }
     
@@ -127,7 +147,7 @@ public class GameState extends Observable implements Serializable, Observer {
      */
     public void reset(GameState s) {
         currentPlayer = s.currentPlayer;
-        gameEnded = s.gameEnded;
+        state = s.state;
         board.reset(s.board); // will trigger update() and thus notify observers
     }
     
@@ -152,16 +172,26 @@ public class GameState extends Observable implements Serializable, Observer {
      * @return 
      */
     public boolean isGameEnded() {
-        return gameEnded;
+        return state == State.ENDED;
+    }
+    
+    /**
+     * Return state
+     * @return
+     */
+    public State getState() {
+        return state;
     }
     
     /**
      * Make game ended
      */
-    public void endGame() {
-        gameEnded = true;
+    public void setState(State s) {
+        if (s != state) {
+            setChanged();
+        }
         
-        setChanged();
+        state = s;
         
         if (!begun) {
             notifyObservers();

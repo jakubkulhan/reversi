@@ -11,7 +11,7 @@ public interface IController {
 
     void pass();
 
-    void placeStone(int row, int column);
+    void move(int row, int column);
 
     void quitGame();
 
