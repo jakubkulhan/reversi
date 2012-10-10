@@ -39,8 +39,8 @@ public class GUIView implements IView {
                 
                 f.add(p);
                 f.setTitle("REVERSI");
-                f.setSize(500, 500);
                 f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                f.pack();
                 f.setLocationRelativeTo(null);
                 f.setVisible(true);
             }

@@ -49,18 +49,18 @@ public class LegalMovesIterator implements Iterator<BoardSquare>, Iterable<Board
 
             for (BoardSquare t : it) {
                 if (t.getRow() == sq.getRow() && t.getColumn() == sq.getColumn()) {
+                    ok = false;
                     continue;
-
+                    
                 } else if (t.getPlayer() == state.getOpponentPlayer()) {
                     ok = true;
-
-                } else if (t.getPlayer() == Player.NONE || t.getPlayer() == state.getCurrentPlayer() && !ok) {
-                    ok = false;
-                    it.advanceCardinal();
-
-                } else if (ok) {
+                    
+                } else if (t.getPlayer() == state.getCurrentPlayer() && ok) {
                     nextLegalMove = sq;
                     return;
+                    
+                } else {
+                    it.advanceCardinal();
                 }
             }
         }

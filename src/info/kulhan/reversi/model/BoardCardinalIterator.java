@@ -37,6 +37,11 @@ public class BoardCardinalIterator implements Iterator<BoardSquare>, Iterable<Bo
     private int currentCardinal;
     
     /**
+     * true if cardinal has been just advanced
+     */
+    private boolean justAdvanced;
+    
+    /**
      * Cardinal directions (pair of row advance and column advance)
      */
     private static final int cardinals[][] = {
@@ -94,10 +99,13 @@ public class BoardCardinalIterator implements Iterator<BoardSquare>, Iterable<Bo
         currentRow += cardinals[currentCardinal][0];
         currentColumn += cardinals[currentCardinal][1];
         
+        justAdvanced = false;
+        
         if (currentRow < 0 || currentRow > 7 || currentColumn < 0 || currentColumn > 7) {
             currentRow = startRow;
             currentColumn = startColumn;
             ++currentCardinal;
+            justAdvanced = true;
         }
         
         return ret;
@@ -121,8 +129,10 @@ public class BoardCardinalIterator implements Iterator<BoardSquare>, Iterable<Bo
      * Advances to next cardinal direction
      */
     public void advanceCardinal() {
-        currentRow = startRow;
-        currentColumn = startColumn;
-        ++currentCardinal;
+        if (!justAdvanced) {
+            currentRow = startRow;
+            currentColumn = startColumn;
+            ++currentCardinal;
+        }
     }
 }

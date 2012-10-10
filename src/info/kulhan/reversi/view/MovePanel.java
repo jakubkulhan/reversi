@@ -75,6 +75,7 @@ public class MovePanel extends JPanel implements Observer {
                 controller.pass();
             }
         });
+        passButton.setEnabled(false);
         add(passButton);
         
         blackIcon = new ImageIcon(getClass().getResource("resources/black.png"));
@@ -122,7 +123,7 @@ public class MovePanel extends JPanel implements Observer {
 
             playerLabel.requestFocus();
 
-            if (new LegalMovesIterator(state).hasNext()) {
+            if (!new LegalMovesIterator(state).hasNext()) {
                 if (new LegalMovesIterator(new GameState(state, state.getOpponentPlayer())).hasNext()) {
                     passButton.setEnabled(true);
                     
