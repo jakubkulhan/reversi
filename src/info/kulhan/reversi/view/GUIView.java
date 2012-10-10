@@ -62,5 +62,29 @@ public class GUIView implements IView {
     public void showCannotLoad() {
         JOptionPane.showMessageDialog(null, "Nepodařilo se načíst hru.");
     }
+
+    @Override
+    public void showSelectGameType(IGameTypeSelector s) {
+        String[] options = new String[GameState.Type.values().length];
+        options[GameState.Type.ONE_PLAYER.ordinal()] = "Pro jednoho hráče";
+        options[GameState.Type.TWO_PLAYER.ordinal()] = "Pro dva hráče";
+        
+        int n = JOptionPane.showOptionDialog(
+            null,
+            "Jakou chcete hrát hru?",
+            "Typ hry",
+            JOptionPane.DEFAULT_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            (Object[]) options,
+            null
+        );
+        
+        if (n == -1) {
+            n = GameState.Type.ONE_PLAYER.ordinal();
+        }
+        
+        s.gameTypeSelected(GameState.Type.values()[n]);
+    }
     
 }

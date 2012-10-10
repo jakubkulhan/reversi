@@ -3,6 +3,7 @@ package info.kulhan.reversi.controller;
 import info.kulhan.reversi.model.BoardCardinalIterator;
 import info.kulhan.reversi.model.BoardSquare;
 import info.kulhan.reversi.model.GameState;
+import info.kulhan.reversi.model.GameState.Type;
 import info.kulhan.reversi.model.LegalMovesIterator;
 import info.kulhan.reversi.view.GUIView;
 import info.kulhan.reversi.view.IView;
@@ -54,28 +55,42 @@ public class Controller implements IController {
      */
     @Override
     public void move(int row, int column) {
+        state.begin();
+        
         placeStone(row, column);
         state.setCurrentPlayer(state.getOpponentPlayer());
-        state.setState(GameState.State.WAITING);
         
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                List<BoardSquare> legalMoves = new LinkedList();
-                
-                for (BoardSquare sq : new LegalMovesIterator(state)) {
-                    legalMoves.add(sq);
+        if (state.getType() == GameState.Type.TWO_PLAYER) {
+            state.setState(GameState.State.INTERACTIVE);
+            state.end();
+            
+        } else if (state.getType() == GameState.Type.ONE_PLAYER) {
+            state.setState(GameState.State.WAITING);
+
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    List<BoardSquare> legalMoves = new LinkedList();
+
+                    for (BoardSquare sq : new LegalMovesIterator(state)) {
+                        legalMoves.add(sq);
+                    }
+
+                    if (legalMoves.size() > 0) {
+                        BoardSquare sq = legalMoves.get(new Random().nextInt(legalMoves.size()));
+                        placeStone(sq.getRow(), sq.getColumn());
+                    }
+
+                    state.setCurrentPlayer(state.getOpponentPlayer());
+                    state.setState(GameState.State.INTERACTIVE);
+                    
+                    state.end();
                 }
-                
-                if (legalMoves.size() > 0) {
-                    BoardSquare sq = legalMoves.get(new Random().nextInt(legalMoves.size()));
-                    placeStone(sq.getRow(), sq.getColumn());
-                }
-                
-                state.setCurrentPlayer(state.getOpponentPlayer());
-                state.setState(GameState.State.INTERACTIVE);
-            }
-        }, 500);
+            }, 500);
+            
+        } else {
+            throw new RuntimeException("Game type " + state.getType() + " not implemented.");
+        }
     }
 
     /**
@@ -86,8 +101,6 @@ public class Controller implements IController {
     private void placeStone(int row, int column) {
         Set<BoardSquare> sqs = new HashSet<BoardSquare>();
         BoardCardinalIterator it = new BoardCardinalIterator(state.getBoard(), row, column);
-        
-        state.begin();
         
         state.getBoard().set(row, column, state.getCurrentPlayer());
         
@@ -109,8 +122,6 @@ public class Controller implements IController {
                 it.advanceCardinal();
             }
         }
-        
-        state.end();
     }
     
     /**
@@ -126,7 +137,12 @@ public class Controller implements IController {
      */
     @Override
     public void newGame() {
-        state.reset();
+        view.showSelectGameType(new IView.IGameTypeSelector() {
+            @Override
+            public void gameTypeSelected(Type t) {
+                state.reset(new GameState(t));
+            }
+        });
     }
 
     /**

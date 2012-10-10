@@ -44,6 +44,26 @@ public class GameState extends Observable implements Serializable, Observer {
     private State state;
     
     /**
+     * Type of game
+     */
+    public enum Type {
+        /**
+         * One player game against computer opponent
+         */
+        ONE_PLAYER,
+        
+        /**
+         * Two player game on same computer
+         */
+        TWO_PLAYER
+    }
+    
+    /**
+     * Game type
+     */
+    private Type type;
+    
+    /**
      * true if begin() has been called
      */
     private boolean begun;
@@ -62,9 +82,21 @@ public class GameState extends Observable implements Serializable, Observer {
      * Create new game state from different state
      */
     public GameState(GameState s) {
-        board = new Board(s.board);
-        currentPlayer = s.currentPlayer;
+        board = new Board();
+        board.addObserver(this);
         begun = false;
+        reset(s);
+    }
+    
+    /**
+     * Create new game state
+     */
+    public GameState(Type t) {
+        board = new Board();
+        board.addObserver(this);
+        begun = false;
+        reset();
+        type = t;
     }
     
     /**
@@ -73,6 +105,27 @@ public class GameState extends Observable implements Serializable, Observer {
     public GameState(GameState s, Player newCurrentPlayer) {
         this(s);
         currentPlayer = newCurrentPlayer;
+    }
+
+    /**
+     * Reset to new game state
+     */
+    public void reset() {
+        currentPlayer = Player.BLACK;
+        state = State.INTERACTIVE;
+        type = Type.TWO_PLAYER;
+        board.reset(); // will trigger update() and thus notify observers
+    }
+    
+    /**
+     * Reset to given state
+     * @param s 
+     */
+    public void reset(GameState s) {
+        currentPlayer = s.currentPlayer;
+        state = s.state;
+        type = s.type;
+        board.reset(s.board); // will trigger update() and thus notify observers
     }
     
     /**
@@ -131,25 +184,6 @@ public class GameState extends Observable implements Serializable, Observer {
             notifyObservers();
         }
     }
-
-    /**
-     * Reset to new game state
-     */
-    public void reset() {
-        currentPlayer = Player.BLACK;
-        state = State.INTERACTIVE;
-        board.reset(); // will trigger update() and thus notify observers
-    }
-    
-    /**
-     * Reset to given state
-     * @param s 
-     */
-    public void reset(GameState s) {
-        currentPlayer = s.currentPlayer;
-        state = s.state;
-        board.reset(s.board); // will trigger update() and thus notify observers
-    }
     
     /**
      * Begin not notifying observers
@@ -165,14 +199,6 @@ public class GameState extends Observable implements Serializable, Observer {
     public void end() {
         begun = false;
         notifyObservers();
-    }
-    
-    /**
-     * Return true if game ended
-     * @return 
-     */
-    public boolean isGameEnded() {
-        return state == State.ENDED;
     }
     
     /**
@@ -192,6 +218,30 @@ public class GameState extends Observable implements Serializable, Observer {
         }
         
         state = s;
+        
+        if (!begun) {
+            notifyObservers();
+        }
+    }
+    
+    /**
+     * Return game type
+     * @return 
+     */
+    public Type getType() {
+        return type;
+    }
+    
+    /**
+     * Set game type
+     * @param t 
+     */
+    public void setType(Type t) {
+        if (t != type) {
+            setChanged();
+        }
+        
+        type = t;
         
         if (!begun) {
             notifyObservers();
