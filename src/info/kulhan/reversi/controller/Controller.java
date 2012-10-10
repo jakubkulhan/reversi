@@ -3,6 +3,8 @@ package info.kulhan.reversi.controller;
 import info.kulhan.reversi.model.BoardCardinalIterator;
 import info.kulhan.reversi.model.BoardSquare;
 import info.kulhan.reversi.model.GameState;
+import info.kulhan.reversi.view.GUIView;
+import info.kulhan.reversi.view.IView;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -10,7 +12,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.Set;
-import javax.swing.JOptionPane;
 
 /**
  * Game controller
@@ -27,11 +28,17 @@ public class Controller implements IController {
     private GameState state;
     
     /**
+     * View
+     */
+    private IView view;
+    
+    /**
      * Create new controller
      * @param s 
      */
-    public Controller(GameState s) {
+    public Controller(GameState s, IView v) {
         state = s;
+        view = v;
     }
 
     /**
@@ -101,7 +108,7 @@ public class Controller implements IController {
             in.close();
             
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Nepodařilo se načíst hru.");
+            view.showCannotLoad();
         }
     }
 
@@ -118,7 +125,7 @@ public class Controller implements IController {
             out.close();
             
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(null, "Nepodařilo se uložit hru.");
+            view.showCannotSave();
         }
     }
 
@@ -153,5 +160,17 @@ public class Controller implements IController {
      */
     private File getSaveFile() {
         return new File(System.getProperty("user.home") + File.separator + SAVE_FILE);
+    }
+    
+    /**
+     * Application entry point
+     * @param args 
+     */
+    public static void main(String[] args) {
+        GameState s = new GameState();
+        IView v = new GUIView(s);
+        IController c = new Controller(s, v);
+        
+        v.showMain(c);
     }
 }

@@ -2,9 +2,9 @@ package info.kulhan.reversi.view;
 
 import info.kulhan.reversi.controller.IController;
 import info.kulhan.reversi.model.BoardSquare;
+import info.kulhan.reversi.model.GameState;
 import info.kulhan.reversi.model.LegalMovesIterator;
 import info.kulhan.reversi.model.Player;
-import info.kulhan.reversi.model.GameState;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
