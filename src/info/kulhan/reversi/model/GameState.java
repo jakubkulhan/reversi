@@ -39,7 +39,7 @@ public class GameState extends Observable implements Serializable, Observer {
     }
     
     /**
-     * true if game ended
+     * State of game
      */
     private State state;
     

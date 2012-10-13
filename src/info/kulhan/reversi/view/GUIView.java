@@ -63,6 +63,9 @@ public class GUIView implements IView {
         JOptionPane.showMessageDialog(null, "Nepodařilo se načíst hru.");
     }
 
+    /**
+     * Show select game type dialog
+     */
     @Override
     public void showSelectGameType(IGameTypeSelector s) {
         String[] options = new String[GameState.Type.values().length];

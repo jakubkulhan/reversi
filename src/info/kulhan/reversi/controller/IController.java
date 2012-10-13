@@ -5,17 +5,17 @@ package info.kulhan.reversi.controller;
  */
 public interface IController {
 
-    void loadGame();
+    public void loadGame();
 
-    void newGame();
+    public void newGame();
 
-    void pass();
+    public void pass();
 
-    void move(int row, int column);
+    public void move(int row, int column);
 
-    void quitGame();
+    public void quitGame();
 
-    void saveGame();
+    public void saveGame();
 
     public void endGame();
 
