@@ -78,35 +78,7 @@ public class Controller implements IController {
             state.end();
             
         } else if (state.getType() == GameState.Type.ONE_PLAYER) {
-            state.setState(GameState.State.WAITING);
-
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    List<BoardSquare> legalMoves = new LinkedList();
-
-                    for (BoardSquare sq : new LegalMovesIterator(state)) {
-                        legalMoves.add(sq);
-                    }
-
-                    if (legalMoves.size() > 0) {
-                        BoardSquare max = legalMoves.get(0);
-                        
-                        for (BoardSquare sq : legalMoves) {
-                            if (scores[sq.getRow()][sq.getColumn()] > scores[max.getRow()][max.getColumn()]) {
-                                max = sq;
-                            }
-                        }
-                        
-                        placeStone(max.getRow(), max.getColumn());
-                    }
-
-                    state.setCurrentPlayer(state.getOpponentPlayer());
-                    state.setState(GameState.State.INTERACTIVE);
-                    
-                    state.end();
-                }
-            }, 500);
+            play();
             
         } else {
             throw new RuntimeException("Game type " + state.getType() + " not implemented.");
@@ -145,11 +117,54 @@ public class Controller implements IController {
     }
     
     /**
+     * Computer move
+     */
+    private void play() {
+        state.setState(GameState.State.WAITING);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                List<BoardSquare> legalMoves = new LinkedList();
+
+                for (BoardSquare sq : new LegalMovesIterator(state)) {
+                    legalMoves.add(sq);
+                }
+
+                if (legalMoves.size() > 0) {
+                    BoardSquare max = legalMoves.get(0);
+
+                    for (BoardSquare sq : legalMoves) {
+                        if (scores[sq.getRow()][sq.getColumn()] > scores[max.getRow()][max.getColumn()]) {
+                            max = sq;
+                        }
+                    }
+
+                    placeStone(max.getRow(), max.getColumn());
+                }
+
+                state.setCurrentPlayer(state.getOpponentPlayer());
+                state.setState(GameState.State.INTERACTIVE);
+
+                state.end();
+            }
+        }, 500);
+    }
+    
+    /**
      * Pass play to opponent
      */
     @Override
     public void pass() {
+        state.begin();
+        
         state.setCurrentPlayer(state.getOpponentPlayer());
+        
+        if (state.getType() == GameState.Type.ONE_PLAYER) {
+            play();   
+        } else {
+            state.end();
+        }
     }
 
     /**
