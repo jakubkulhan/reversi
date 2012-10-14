@@ -15,7 +15,6 @@ import java.io.ObjectOutputStream;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -38,6 +37,20 @@ public class Controller implements IController {
      * View
      */
     private IView view;
+    
+    /**
+     * Scores of squares for AI
+     */
+    private static final byte[][] scores = {
+        { 99,  -8,   8,   6,   6,   8,  -8, 99 },
+        { -8, -24,  -4,  -3,  -3,  -4, -24, -8 },
+        {  8,  -4,   7,   4,   4,   7,  -4,  8 },
+        {  6,  -3,   4,   0,   0,   4,   3,  6 },
+        {  6,  -3,   4,   0,   0,   4,   3,  6 },
+        {  8,  -4,   7,   4,   4,   7,  -4,  8 },
+        { -8, -24,  -4,  -3,  -3,  -4, -24, -8 },
+        { 99,  -8,   8,   6,   6,   8,  -8, 99 }
+    };
     
     /**
      * Create new controller
@@ -77,8 +90,15 @@ public class Controller implements IController {
                     }
 
                     if (legalMoves.size() > 0) {
-                        BoardSquare sq = legalMoves.get(new Random().nextInt(legalMoves.size()));
-                        placeStone(sq.getRow(), sq.getColumn());
+                        BoardSquare max = legalMoves.get(0);
+                        
+                        for (BoardSquare sq : legalMoves) {
+                            if (scores[sq.getRow()][sq.getColumn()] > scores[max.getRow()][max.getColumn()]) {
+                                max = sq;
+                            }
+                        }
+                        
+                        placeStone(max.getRow(), max.getColumn());
                     }
 
                     state.setCurrentPlayer(state.getOpponentPlayer());
